@@ -1,37 +1,39 @@
 package com.fakecompany.micro.person.facade;
 
 
-import com.fakecompany.micro.person.model.Person;
-import com.fakecompany.micro.person.service.PersonService;
+import com.fakecompany.micro.person.adapters.image.ImageClient;
+import com.fakecompany.micro.person.dto.ImageDto;
 import com.fakecompany.micro.person.dto.PersonDto;
 import com.fakecompany.micro.person.dto.PersonImageDto;
-import com.fakecompany.micro.person.exception.ImageNotComeBodyException;
 import com.fakecompany.micro.person.mapper.PersonMapper;
-import com.fakecompany.micro.person.model.Image;
-import com.fakecompany.micro.person.service.ImageService;
+import com.fakecompany.micro.person.model.Person;
+import com.fakecompany.micro.person.service.PersonService;
+import com.fakecompany.micro.person.util.StandardResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static com.fakecompany.micro.person.util.ObjectTypeConverter.image2Base64;
-import static com.fakecompany.micro.person.util.OptionalFieldValidator.imageComeOnBody;
 
 
 @Service
 @Transactional
 public class PersonFacade {
     private PersonService personService;
-    private ImageService imageService;
+
+    @Autowired
+    private ImageClient imageClient;
     private PersonMapper personMapper;
 
     //TODO rafactorizar a I
-    public PersonFacade(PersonService personService,ImageService imageService,
+    public PersonFacade(PersonService personService,
                         PersonMapper personMapper) {
         this.personService = personService;
-        this.imageService = imageService;
         this.personMapper = personMapper;
     }
 
@@ -41,9 +43,9 @@ public class PersonFacade {
         personImageDto.setPersonId(person.getId());
 
         if (!imagePart.isEmpty()){
-            Image image= mappingImage(personImageDto.getImageId(), person.getId(),imagePart);
-            image = imageService.createImage(image);
-            personImageDto.setImageId(image.getId());
+            StandardResponse<ImageDto> image =  imageClient.createImage(imagePart, personImageDto.getPersonId());
+            Logger.getGlobal().log(Level.INFO, image.toString());
+            personImageDto.setImageId(image.getBody().getId());
         }
 
         return personImageDto;
@@ -52,7 +54,7 @@ public class PersonFacade {
 
 
     public PersonImageDto editPerson(PersonImageDto personImageDto, MultipartFile imagePart){
-
+/*
         Person person = mappingPerson(personImageDto);
         PersonDto personDto = personMapper.toDto(personService.editPerson(person));
 
@@ -85,10 +87,12 @@ public class PersonFacade {
         personImageDtoEdit.setCityBirth(personDto.getCityBirth());
 
         return personImageDtoEdit;
+        */
+        return null;
     }
 
-    private Image mappingImage(String imageId, Integer personId, MultipartFile imagePart){
-        Image image = new Image();
+    private ImageDto mappingImage(String imageId, Integer personId, MultipartFile imagePart){
+        ImageDto image = new ImageDto();
         image.setId(imageId);
         image.setImage(image2Base64(imagePart));
         image.setPersonId(personId);
@@ -110,24 +114,24 @@ public class PersonFacade {
 
     }
 
-    private boolean hasImage(Integer personId){
+   /* private boolean hasImage(Integer personId){
         return !imageService.findByPersonId(personId).getImage().isEmpty();
-    }
+    }*/
 
     public void deletePerson(Integer personId){
-        //TODO buscar si la persona tiene imagen, si es así, eliminar la imagen
+       /* //TODO buscar si la persona tiene imagen, si es así, eliminar la imagen
         Image image = imageService.findByPersonId(personId);
         if(!image.getImage().isEmpty()){
             imageService.deleteImage(image.getId());
         }
 
-        personService.deletePerson(personId);
+        personService.deletePerson(personId);*/
 
     }
 
     public List<PersonImageDto> findAll(){
 
-        List<PersonDto> personDtoList = personMapper.toDto(personService.findAll());
+       /* List<PersonDto> personDtoList = personMapper.toDto(personService.findAll());
         List<PersonImageDto> personImageDtoList = new ArrayList<>();
 
 
@@ -150,7 +154,8 @@ public class PersonFacade {
 
 
 
-        return personImageDtoList;
+        return personImageDtoList;*/
+        return null;
 
 
     }

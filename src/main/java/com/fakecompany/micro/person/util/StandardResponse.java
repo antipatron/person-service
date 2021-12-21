@@ -10,6 +10,9 @@ public class StandardResponse<T> {
     private String dateTime;
     private T body;
 
+    public StandardResponse() {
+    }
+
     public StandardResponse(StatusStandardResponse status, T body){
         this.status = status.getStatus();
         this.dateTime = new SimpleDateFormat(FORMTATO_FECHA_HORA).format(Calendar.getInstance().getTime());
@@ -60,6 +63,16 @@ public class StandardResponse<T> {
 
     public void setDateTime(String dateTime) {
         this.dateTime = dateTime;
+    }
+
+    @Override
+    public String toString() {
+        return "StandardResponse{" +
+                "status='" + status + '\'' +
+                ", message='" + message + '\'' +
+                ", dateTime='" + dateTime + '\'' +
+                ", body=" + body +
+                '}';
     }
 
     public enum StatusStandardResponse {
