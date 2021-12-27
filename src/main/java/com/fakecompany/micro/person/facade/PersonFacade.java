@@ -1,7 +1,7 @@
 package com.fakecompany.micro.person.facade;
 
 
-import com.fakecompany.micro.person.adapters.image.ImageClient;
+import com.fakecompany.micro.person.adapter.client.ImageClient;
 import com.fakecompany.micro.person.dto.ImageDto;
 import com.fakecompany.micro.person.dto.PersonDto;
 import com.fakecompany.micro.person.dto.PersonImageDto;

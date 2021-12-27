@@ -1,4 +1,4 @@
-package com.fakecompany.micro.person.adapters.image;
+package com.fakecompany.micro.person.adapter.client;
 
 
 import com.fakecompany.micro.person.config.FeignClientConfiguration;
