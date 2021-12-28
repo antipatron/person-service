@@ -1,7 +1,7 @@
 package com.fakecompany.micro.person.service;
 
 
-import com.fakecompany.micro.person.exception.DataNotFoundException;
+import com.fakecompany.common.exception.DataNotFoundException;
 import com.fakecompany.micro.person.model.IdentificationType;
 import com.fakecompany.micro.person.model.IdentificationTypeRepository;
 import org.hibernate.ObjectNotFoundException;

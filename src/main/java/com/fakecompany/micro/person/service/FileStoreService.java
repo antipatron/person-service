@@ -1,6 +1,6 @@
 package com.fakecompany.micro.person.service;
 
-import com.fakecompany.micro.person.dto.ImageDto;
+import com.fakecompany.common.dto.ImageDto;
 import com.fakecompany.micro.person.util.FileStorageS3Util;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.apache.http.entity.ContentType.*;
-import static org.apache.http.entity.ContentType.IMAGE_JPEG;
 
 @Service
 public class FileStoreService {

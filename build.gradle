@@ -10,6 +10,8 @@ sourceCompatibility = '11'
 
 repositories {
 	mavenCentral()
+	mavenLocal()
+
 }
 
 test.onlyIf { !project.hasProperty('someProperty') }
@@ -48,6 +50,7 @@ dependencies {
 	implementation group: 'com.amazonaws', name: 'aws-java-sdk', version: '1.12.131'
 	// https://mvnrepository.com/artifact/org.modelmapper/modelmapper
 	implementation group: 'org.modelmapper', name: 'modelmapper', version: '2.4.5'
+	implementation group: 'com.fakecompany', name: 'common', version: '1.0.0'
 
 
 

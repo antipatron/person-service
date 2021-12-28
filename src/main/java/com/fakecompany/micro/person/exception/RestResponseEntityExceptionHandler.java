@@ -1,7 +1,11 @@
 package com.fakecompany.micro.person.exception;
 
 import com.amazonaws.services.s3.model.AmazonS3Exception;
-import com.fakecompany.micro.person.util.StandardResponse;
+import com.fakecompany.common.exception.DataConstraintViolationException;
+import com.fakecompany.common.exception.DataNotFoundException;
+import com.fakecompany.common.exception.ImageNotComeBodyException;
+import com.fakecompany.common.exception.ObjectNoEncontradoException;
+import com.fakecompany.common.util.StandardResponse;
 import com.google.common.base.Joiner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

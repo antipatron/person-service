@@ -1,10 +1,10 @@
 package com.fakecompany.micro.person.service;
 
 
-import com.fakecompany.micro.person.exception.DataConstraintViolationException;
-import com.fakecompany.micro.person.exception.DataDuplicatedException;
-import com.fakecompany.micro.person.exception.DataNotFoundException;
-import com.fakecompany.micro.person.exception.ObjectNoEncontradoException;
+import com.fakecompany.common.exception.DataConstraintViolationException;
+import com.fakecompany.common.exception.DataDuplicatedException;
+import com.fakecompany.common.exception.DataNotFoundException;
+import com.fakecompany.common.exception.ObjectNoEncontradoException;
 import com.fakecompany.micro.person.model.Person;
 import com.fakecompany.micro.person.model.PersonRepository;
 import org.hibernate.ObjectNotFoundException;

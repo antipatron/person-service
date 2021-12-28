@@ -1,10 +1,10 @@
 package com.fakecompany.micro.person.controller;
 
 
+import com.fakecompany.common.util.StandardResponse;
 import com.fakecompany.micro.person.dto.PersonDto;
 import com.fakecompany.micro.person.dto.PersonImageDto;
 import com.fakecompany.micro.person.facade.PersonFacade;
-import com.fakecompany.micro.person.util.StandardResponse;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;

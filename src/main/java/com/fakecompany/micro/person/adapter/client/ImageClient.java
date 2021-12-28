@@ -1,9 +1,9 @@
 package com.fakecompany.micro.person.adapter.client;
 
 
+import com.fakecompany.common.dto.ImageDto;
+import com.fakecompany.common.util.StandardResponse;
 import com.fakecompany.micro.person.config.FeignClientConfiguration;
-import com.fakecompany.micro.person.dto.ImageDto;
-import com.fakecompany.micro.person.util.StandardResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestBody;
