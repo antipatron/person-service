@@ -5,159 +5,113 @@ import com.fakecompany.micro.person.adapter.client.ImageClient;
 import com.fakecompany.micro.person.dto.ImageDto;
 import com.fakecompany.micro.person.dto.PersonDto;
 import com.fakecompany.micro.person.dto.PersonImageDto;
+import com.fakecompany.micro.person.exception.ImageNotComeBodyException;
 import com.fakecompany.micro.person.mapper.PersonMapper;
-import com.fakecompany.micro.person.model.Person;
+import com.fakecompany.micro.person.service.FileStoreService;
 import com.fakecompany.micro.person.service.PersonService;
 import com.fakecompany.micro.person.util.StandardResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Optional;
 
-import static com.fakecompany.micro.person.util.ObjectTypeConverter.image2Base64;
+import static com.fakecompany.micro.person.util.ModelMapperUtil.getMapperPersonaImageDto2PersonDto;
+import static com.fakecompany.micro.person.util.OptionalFieldValidator.imageFileComeOnBody;
+import static com.fakecompany.micro.person.util.OptionalFieldValidator.imageIdComeOnBody;
 
 
 @Service
 @Transactional
+@AllArgsConstructor
 public class PersonFacade {
+
     private PersonService personService;
-
-    @Autowired
-    private ImageClient imageClient;
     private PersonMapper personMapper;
+    private FileStoreService fileStoreService;
+    private ModelMapper modelMapper;
+    private ImageClient imageClient;
 
-    //TODO rafactorizar a I
-    public PersonFacade(PersonService personService,
-                        PersonMapper personMapper) {
-        this.personService = personService;
-        this.personMapper = personMapper;
-    }
 
     public PersonImageDto createPerson(PersonImageDto personImageDto, MultipartFile imagePart){
-        Person person = mappingPerson(personImageDto);
-        person = personService.createPerson(person);
-        personImageDto.setPersonId(person.getId());
+        PersonDto personDto = setUpMappingPersonaImageDto2PersonDto(personImageDto);
+        personDto = personMapper.toDto(personService.createPerson(personMapper.toEntity(personDto)));
+        personImageDto.setPersonId(personDto.getId());
 
         if (!imagePart.isEmpty()){
-            StandardResponse<ImageDto> image =  imageClient.createImage(imagePart, personImageDto.getPersonId());
-            Logger.getGlobal().log(Level.INFO, image.toString());
-            personImageDto.setImageId(image.getBody().getId());
+            ImageDto imageDtoS3 = storeNewImage(imagePart.getOriginalFilename(), personImageDto.getPersonId(),imagePart);
+            personImageDto.setImageId(imageDtoS3.getId());
+            personImageDto.setImageUrl(imageDtoS3.getImageUrl());
         }
 
         return personImageDto;
     }
 
-
-
     public PersonImageDto editPerson(PersonImageDto personImageDto, MultipartFile imagePart){
-/*
-        Person person = mappingPerson(personImageDto);
-        PersonDto personDto = personMapper.toDto(personService.editPerson(person));
+        PersonDto personDto = setUpMappingPersonaImageDto2PersonDto(personImageDto);
+        personDto = personMapper.toDto(personService.editPerson(personMapper.toEntity(personDto)));
 
-        //TODO puedo refactorizar esta parte y juntarla con la parte del guardar.
-        PersonImageDto personImageDtoEdit = new PersonImageDto();
+        ImageDto imageToEdit = imageClient.findByPersonId(personImageDto.getPersonId()).getBody();
+        PersonImageDto personImageDtoEdit = modelMapper.map(personDto, PersonImageDto.class);
 
-        if (!imagePart.isEmpty()){
-            //TODO comprobar que si tenga imagen en bd (restriccion es una persona una imagen)
-            if(hasImage(personImageDto.getPersonId())){
-                if(imageComeOnBody(personImageDto.getImageId())){
-                    Image imageEdit = mappingImage(personImageDto.getImageId(), personImageDto.getPersonId(), imagePart);
-                    imageEdit = imageService.editImage(imageEdit);
-                    personImageDtoEdit.setImageId(imageEdit.getId());
-                }else{
+        if (imageFileComeOnBody(imagePart)){
+            final String nameNewImage = imagePart.getOriginalFilename();
+            if(!imageToEdit.getImageUrl().isEmpty()){
+                if(imageIdComeOnBody(personImageDto.getImageId())&&
+                        isOwnImage(imageToEdit.getId(), personImageDto.getImageId())){
+
+                    imageToEdit = replaceImage(imageToEdit.getImageName(),nameNewImage, personImageDto.getImageId(),
+                            personImageDto.getPersonId(),imagePart);
+                }else {
                     throw new ImageNotComeBodyException("exception.not_come_body.image");
                 }
-
             }else{
-                Image image = imageService.createImage(mappingImage(personImageDto.getImageId(),personImageDto.getPersonId(), imagePart));
-                personImageDtoEdit.setImageId(image.getId());
+                imageToEdit = storeNewImage(nameNewImage,personImageDto.getPersonId(),imagePart);
             }
         }
 
         personImageDtoEdit.setPersonId(personDto.getId());
-        personImageDtoEdit.setName(personDto.getName());
-        personImageDtoEdit.setLastName(personDto.getLastName());
-        personImageDtoEdit.setIdentification(personDto.getIdentification());
-        personImageDtoEdit.setIdentificationTypeId(personDto.getIdentificationTypeId());
-        personImageDtoEdit.setAge(personDto.getAge());
-        personImageDtoEdit.setCityBirth(personDto.getCityBirth());
+        personImageDtoEdit.setImageId(imageToEdit.getId());
+        personImageDtoEdit.setImageUrl(imageToEdit.getImageUrl());
 
         return personImageDtoEdit;
-        */
-        return null;
     }
-
-    private ImageDto mappingImage(String imageId, Integer personId, MultipartFile imagePart){
-        ImageDto image = new ImageDto();
-        image.setId(imageId);
-        image.setImage(image2Base64(imagePart));
-        image.setPersonId(personId);
-        return image;
-    }
-
-    private Person mappingPerson(PersonImageDto personImageDto){
-        Person person = new Person();
-        person.setId(personImageDto.getPersonId());
-
-        person.setName(personImageDto.getName());
-        person.setLastName(personImageDto.getLastName());
-        person.setIdentification(personImageDto.getIdentification());
-        person.setIdentificationTypeId(personImageDto.getIdentificationTypeId());
-        person.setAge(personImageDto.getAge());
-        person.setCityBirth(personImageDto.getCityBirth());
-
-        return person;
-
-    }
-
-   /* private boolean hasImage(Integer personId){
-        return !imageService.findByPersonId(personId).getImage().isEmpty();
-    }*/
 
     public void deletePerson(Integer personId){
-       /* //TODO buscar si la persona tiene imagen, si es así, eliminar la imagen
-        Image image = imageService.findByPersonId(personId);
-        if(!image.getImage().isEmpty()){
-            imageService.deleteImage(image.getId());
+        final ImageDto image = imageClient.findByPersonId(personId).getBody();
+        if(!image.getImageUrl().isEmpty()){
+            imageClient.deleteImage(image.getId());
+            fileStoreService.deleteFile(image.getImageName(),personId);
         }
-
-        personService.deletePerson(personId);*/
-
+        personService.deletePerson(personId);
     }
 
     public List<PersonImageDto> findAll(){
+        final List<PersonImageDto> personImageDtoList = new ArrayList<>();
+        final List<PersonDto> personDtoList = personMapper.toDto(personService.findAll());
+        final List<ImageDto> imageList = imageClient.findAll().getBody();
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 
-       /* List<PersonDto> personDtoList = personMapper.toDto(personService.findAll());
-        List<PersonImageDto> personImageDtoList = new ArrayList<>();
-
+        personDtoList.forEach(personDto -> System.out.println(personDto.toString()));
 
         personDtoList.forEach(personDto -> {
-
-            PersonImageDto personImageDto = new PersonImageDto();
-
+            PersonImageDto personImageDto = modelMapper.map(personDto, PersonImageDto.class);
             personImageDto.setPersonId(personDto.getId());
-            personImageDto.setName(personDto.getName());
-            personImageDto.setLastName(personDto.getLastName());
-            personImageDto.setIdentification(personDto.getIdentification());
-            personImageDto.setIdentificationTypeId(personDto.getIdentificationTypeId());
-            personImageDto.setAge(personDto.getAge());
-            personImageDto.setCityBirth(personDto.getCityBirth());
-            personImageDto.setImageId(imageService.findByPersonId(personDto.getId()).getId());
-
+            Optional<ImageDto> imageOptional =  imageList.stream()
+                    .filter(image -> image.getPersonId().equals(personDto.getId())).findAny();
+            if(imageOptional.isPresent()){
+                personImageDto.setImageId(imageOptional.get().getId());
+                personImageDto.setImageUrl(imageOptional.get().getImageUrl());
+            }
             personImageDtoList.add(personImageDto);
-
         });
 
-
-
-        return personImageDtoList;*/
-        return null;
-
-
+        return personImageDtoList;
     }
 
     public List<PersonDto> findByAgeGreaterThanEqual(Integer age){
@@ -167,4 +121,35 @@ public class PersonFacade {
     public List<PersonDto> findByAgeLessThanEqual(Integer age){
         return personMapper.toDto(personService.findByAgeLessThanEqual(age));
     }
+
+    private ImageDto storeNewImage(final String nameNewImage, Integer personId, MultipartFile imagePart){
+        ImageDto imageS3 = fileStoreService.createFile(nameNewImage, personId,imagePart);
+        StandardResponse<ImageDto> imageDtoStandardResponse = imageClient.createImage(imageS3);
+
+        return imageDtoStandardResponse.getBody();
+
+    }
+
+    private ImageDto replaceImage(String nameOldImage, String nameNewImage, String imageId,Integer personId,
+                                  MultipartFile imagePart){
+
+        fileStoreService.deleteFile(nameOldImage, personId);
+        ImageDto imageS3 = fileStoreService.createFile(nameNewImage, personId,imagePart);
+        imageS3.setId(imageId);
+        StandardResponse<ImageDto> imageDtoStandardResponse = imageClient.editImage(imageS3);
+
+        return imageDtoStandardResponse.getBody();
+    }
+
+    private PersonDto setUpMappingPersonaImageDto2PersonDto(PersonImageDto personImageDto){
+        modelMapper= getMapperPersonaImageDto2PersonDto();
+        PersonDto personDto = modelMapper.map(personImageDto, PersonDto.class);
+        return personDto;
+    }
+
+    private boolean isOwnImage(String imageIdBd, String imageIdRequest){
+        return imageIdBd.equals(imageIdRequest);
+    }
+
+
 }

@@ -1,7 +1,7 @@
 package com.fakecompany.micro.person.dto;
 
 
-import lombok.*;
+import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -23,6 +23,6 @@ public class PersonImageDto {
     @NotBlank
     private String cityBirth;
     private String imageId;
-    private String image;
+    private String imageUrl;
 
 }

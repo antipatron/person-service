@@ -1,7 +1,7 @@
 package com.fakecompany.micro.person.dto;
 
 
-import lombok.Data;
+import lombok.*;
 
 import javax.validation.constraints.NotNull;
 
@@ -9,7 +9,10 @@ import javax.validation.constraints.NotNull;
 public class ImageDto {
 
     private String id;
-    private String image;
+    private String imageUrl;
+    private String imageName;
+
     @NotNull
     private Integer personId;
 }
+
