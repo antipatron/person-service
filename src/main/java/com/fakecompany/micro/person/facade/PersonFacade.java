@@ -125,7 +125,6 @@ public class PersonFacade {
     private ImageDto storeNewImage(final String nameNewImage, Integer personId, MultipartFile imagePart){
         ImageDto imageS3 = fileStoreService.createFile(nameNewImage, personId,imagePart);
         StandardResponse<ImageDto> imageDtoStandardResponse = imageClient.createImage(imageS3);
-
         return imageDtoStandardResponse.getBody();
 
     }
@@ -150,6 +149,5 @@ public class PersonFacade {
     private boolean isOwnImage(String imageIdBd, String imageIdRequest){
         return imageIdBd.equals(imageIdRequest);
     }
-
 
 }

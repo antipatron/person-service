@@ -1,5 +1,6 @@
 package com.fakecompany.micro.person.exception;
 
+import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.fakecompany.micro.person.util.StandardResponse;
 import com.google.common.base.Joiner;
 import org.slf4j.Logger;
@@ -27,6 +28,15 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
 
     @ExceptionHandler(DataNotFoundException.class)
     public final ResponseEntity<StandardResponse> handleDataNotFound(HttpServletRequest request, DataNotFoundException ex){
+        logger.error(request.getRequestURL().toString(), ex);
+        return new ResponseEntity<>(new StandardResponse(
+                StandardResponse.StatusStandardResponse.ERROR,
+                ex.getMessage()),
+                HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(AmazonS3Exception.class)
+    public final ResponseEntity<StandardResponse> handleDataNotFound(HttpServletRequest request, AmazonS3Exception ex){
         logger.error(request.getRequestURL().toString(), ex);
         return new ResponseEntity<>(new StandardResponse(
                 StandardResponse.StatusStandardResponse.ERROR,
