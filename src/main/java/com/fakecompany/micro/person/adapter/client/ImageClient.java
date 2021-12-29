@@ -3,6 +3,7 @@ package com.fakecompany.micro.person.adapter.client;
 
 import com.fakecompany.common.dto.ImageDto;
 import com.fakecompany.common.util.StandardResponse;
+import com.fakecompany.micro.person.adapter.ImageClientFallbackFactory;
 import com.fakecompany.micro.person.config.FeignClientConfiguration;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
@@ -15,7 +16,9 @@ import java.util.List;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-@FeignClient(name = "image-service", url = "${microverse.image-service.url}", configuration = FeignClientConfiguration.class)
+@FeignClient(name = "image-service", url = "${microverse.image-service.url}",
+        configuration = FeignClientConfiguration.class,
+        fallback = ImageClientFallbackFactory.class)
 public interface ImageClient {
 
     @RequestMapping(value = "" , consumes = APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST)

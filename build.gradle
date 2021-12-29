@@ -31,6 +31,14 @@ dependencies {
 	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
 	implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '3.1.0'
 
+	// https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-netflix-hystrix
+	implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-netflix-hystrix', version: '2.2.10.RELEASE'
+    // https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-netflix-hystrix-dashboard
+	implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-netflix-hystrix-dashboard', version: '2.2.10.RELEASE'
+
+
+
+
 	//implementation 'org.springframework.cloud:spring-cloud-starter-sleuth'
 	// https://mvnrepository.com/artifact/com.google.guava/guava
 	implementation group: 'com.google.guava', name: 'guava', version: '20.0'
@@ -50,12 +58,24 @@ dependencies {
 	implementation group: 'com.amazonaws', name: 'aws-java-sdk', version: '1.12.131'
 	// https://mvnrepository.com/artifact/org.modelmapper/modelmapper
 	implementation group: 'org.modelmapper', name: 'modelmapper', version: '2.4.5'
-	implementation group: 'com.fakecompany', name: 'common', version: '1.0.0'
+	implementation group: 'com.fakecompany', name: 'common', version: '1.2.4'
 
 
 
 	runtimeOnly 'mysql:mysql-connector-java'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+tasks {
+	bootJar {
+		archiveFileName.set("person-service-api.jar")
+	}
+}
+
+jar {
+	manifest {
+		attributes 'Main-Class': 'com.fakecompany.micro.person.PersonserviceApplication'
+	}
 }
 
 dependencyManagement {
